@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment Page</title>
+
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w,d,s,l,i){
+      w[l]=w[l]||[];
+      w[l].push({
+        'gtm.start': new Date().getTime(),
+        event:'gtm.js'
+      });
+
+      var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),
+          dl=l!='dataLayer' ? '&l='+l : '';
+
+      j.async=true;
+      j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+
+      f.parentNode.insertBefore(j,f);
+
+    })(window,document,'script','dataLayer','GTM-K2QGFTBD');
+  </script>
+  <!-- End GTM -->
+
+  <style>
+
+    body{
+      font-family: Arial, sans-serif;
+      padding:40px;
+      background:#f5f5f5;
+    }
+
+    .payment-container{
+      width:400px;
+      margin:auto;
+      background:white;
+      padding:25px;
+      border-radius:8px;
+    }
+
+    input{
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+      margin-bottom:20px;
+      box-sizing:border-box;
+    }
+
+    .button-group{
+      display:flex;
+      gap:10px;
+    }
+
+    button{
+      padding:12px 20px;
+      cursor:pointer;
+      border:none;
+      border-radius:4px;
+    }
+
+    .pay-btn{
+      background:#007bff;
+      color:white;
+    }
+
+    .cancel-btn{
+      background:#dc3545;
+      color:white;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<!-- GTM NOSCRIPT -->
+<noscript>
+  <iframe
+    src="https://www.googletagmanager.com/ns.html?id=GTM-K2QGFTBD"
+    height="0"
+    width="0"
+    style="display:none;visibility:hidden">
+  </iframe>
+</noscript>
+
+<div class="payment-container">
+
+  <h2>Payment Details</h2>
+
+  <p>
+    <strong>Order ID:</strong>
+    <span id="order-id"></span>
+  </p>
+
+  <p>
+    <strong>Amount:</strong>
+    $<span id="amount"></span>
+  </p>
+
+  <form id="payment-form">
+
+    <label>Card Holder Name</label>
+    <input type="text" id="card-name" required />
+
+    <label>Card Number</label>
+    <input type="text" id="card-number" maxlength="16" required />
+
+    <label>Expiry Date</label>
+    <input type="month" id="expiry" required />
+
+    <label>CVV</label>
+    <input type="password" id="cvv" maxlength="3" required />
+
+    <div class="button-group">
+
+      <button type="submit" class="pay-btn">
+        Pay Now
+      </button>
+
+      <button type="button" id="cancel-btn" class="cancel-btn">
+        Cancel
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+
+  window.dataLayer = window.dataLayer || [];
+
+  // URL PARAMETERS
+  const params = new URLSearchParams(window.location.search);
+
+  const orderId = params.get("order_id") || "ORD001";
+
+  const amount = Number(params.get("amount")) || 499;
+
+  // DISPLAY VALUES
+  document.getElementById("order-id").innerText = orderId;
+
+  document.getElementById("amount").innerText = amount;
+
+  // PAYMENT PAGE VIEW
+  dataLayer.push({ ecommerce: null });
+
+  dataLayer.push({
+    event: "payment_page_view",
+    ecommerce: {
+      transaction_id: orderId,
+      value: amount
+    }
+  });
+
+  // PAYMENT SUBMIT
+  document.getElementById("payment-form")
+    .addEventListener("submit", function(e){
+
+      e.preventDefault();
+
+      dataLayer.push({ ecommerce: null });
+
+      dataLayer.push({
+        event: "payment_initiated",
+        ecommerce: {
+          transaction_id: orderId,
+          value: amount,
+          payment_method: "credit_card"
+        }
+      });
+
+      // REDIRECT TO SUCCESS PAGE
+      window.location.href =
+        "payment-success.html" +
+        "?order_id=" + orderId +
+        "&amount=" + amount +
+        "&status=success";
+
+  });
+
+  // CANCEL BUTTON
+  document.getElementById("cancel-btn")
+    .addEventListener("click", function(){
+
+      dataLayer.push({ ecommerce: null });
+
+      dataLayer.push({
+        event: "payment_cancelled",
+        ecommerce: {
+          transaction_id: orderId,
+          value: amount
+        }
+      });
+
+      // REDIRECT TO CANCEL PAGE
+      window.location.href =
+        "payment-cancelled.html" +
+        "?order_id=" + orderId +
+        "&amount=" + amount +
+        "&status=cancelled";
+
+  });
+
+</script>
+
+</body>
+</html>
